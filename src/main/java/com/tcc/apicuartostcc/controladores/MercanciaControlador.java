@@ -25,9 +25,10 @@ public class MercanciaControlador {
                     .status(HttpStatus.OK)
                     .body(mercanciaservicio.registrar(mercancia));
         }catch(Exception error){
+            String mensaje="{\"error\":\"Error revise: "+error+"\"}";
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("{mensaje:Revise su peticion }");
+                    .body(mensaje);
         }
     }
 
@@ -44,6 +45,44 @@ public class MercanciaControlador {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminar(@PathVariable Integer id){
+        try{
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(mercanciaservicio.borrar(id));
+        }catch(Exception error){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("{mensaje: No se pudo actualizar }");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizar(@PathVariable Integer id, @RequestBody Mercancia mercancia){
+        try{
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(mercanciaservicio.actualizar(id,mercancia));
+        }catch(Exception error){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("{mensaje: No se pudo actualizar }");
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarPorId(@PathVariable Integer id){
+        try{
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(mercanciaservicio.buscarPorId(id));
+        }catch(Exception error){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("{mensaje: Datos no encontrados }");
+        }
+    }
 
 
 }

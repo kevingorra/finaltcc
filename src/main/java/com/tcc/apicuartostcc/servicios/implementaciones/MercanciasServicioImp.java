@@ -4,6 +4,7 @@ package com.tcc.apicuartostcc.servicios.implementaciones;
 import com.tcc.apicuartostcc.entidades.Mercancia;
 import com.tcc.apicuartostcc.entidades.Zona;
 import com.tcc.apicuartostcc.repositorios.Mercanciarepositorio;
+import com.tcc.apicuartostcc.repositorios.Zonarepositorio;
 import com.tcc.apicuartostcc.servicios.ServicioGenerico;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ public class MercanciasServicioImp  implements ServicioGenerico<Mercancia> {
 
     @Autowired
     Mercanciarepositorio mercanciarepositorio;
+    @Autowired
+    Zonarepositorio zonarepositorio;
 
 
     @Override
@@ -45,12 +48,26 @@ public class MercanciasServicioImp  implements ServicioGenerico<Mercancia> {
     }
 
     @Override
-    public Mercancia registrar(Mercancia tabla) throws Exception {
+    public Mercancia registrar(Mercancia tabla ) throws Exception {
 
         try{
 
-            tabla=mercanciarepositorio.save(tabla);
-            return tabla;
+            Optional<Zona> zonaAsociadaMercancia=zonarepositorio.findById(tabla.getZona().getId());
+            Double capacidadDisponibleZona=zonaAsociadaMercancia.get().getDisponible();
+            Double capacidadOcupadaMercancia= tabla.getVolumen();
+            Double capacidadRestante=capacidadDisponibleZona-capacidadOcupadaMercancia;
+
+            if (capacidadRestante>=0){
+                zonaAsociadaMercancia.get().setDisponible(capacidadRestante);
+                zonarepositorio.save(zonaAsociadaMercancia.get());
+                tabla=mercanciarepositorio.save(tabla);
+                return tabla;
+            }else {
+                throw new Exception("No tenemos Capacidad Para esta Mercancia");
+            }
+
+
+            //tabla=mercanciarepositorio.save(tabla);
 
         }catch(Exception error){
             throw new Exception(error.getMessage());
@@ -79,6 +96,14 @@ public class MercanciasServicioImp  implements ServicioGenerico<Mercancia> {
         try{
 
             if(mercanciarepositorio.existsById(id)){
+
+                Optional<Mercancia>mercanciaARetirar=mercanciarepositorio.findById(id);
+                Optional<Zona>zonaAsociada=zonarepositorio.findById(mercanciaARetirar.get().getZona().getId());
+                Double capaciadadOcupada=mercanciaARetirar.get().getVolumen();
+                Double capacidadDisponible=zonaAsociada.get().getDisponible();
+                Double capacidadLiberada=capacidadDisponible+capaciadadOcupada;
+                zonaAsociada.get().setDisponible(capacidadLiberada);
+                zonarepositorio.save(zonaAsociada.get());
                 mercanciarepositorio.deleteById(id);
                 return true;
 

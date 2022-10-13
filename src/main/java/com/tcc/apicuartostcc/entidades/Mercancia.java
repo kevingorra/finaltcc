@@ -10,7 +10,6 @@ import java.io.Serializable;
 public class Mercancia implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "iup")
     private Integer iup;
 
@@ -56,6 +55,9 @@ public class Mercancia implements Serializable {
     @Column(name = "direccion_destinatario")
     private String direccionDestinatario;
 
+    @Column(name = "ubicacion")
+    private String ubicacion;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "fk_zona", referencedColumnName = "id")
     @JsonBackReference
@@ -70,6 +72,14 @@ public class Mercancia implements Serializable {
 
     public void setZona(Zona zona) {
         this.zona = zona;
+    }
+
+    public String getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(String ubicacion) {
+        this.ubicacion = ubicacion;
     }
 
     public Integer getIup() {
